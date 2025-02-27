@@ -4,6 +4,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', password: '' });
   const [error, setError] = useState('');
 
+  // Handle input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -11,10 +12,50 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  // Validate email format
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Call your backend API for signup here
-    // If there's an error, set the error state
+
+    // Check if email is valid
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    // Check for missing fields
+    if (!formData.name || !formData.phone || !formData.password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setError(''); // Reset error message if no issues
+
+    // Call your backend API for signup here (this is just an example)
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Successfully signed up, you can redirect the user or show success message
+        alert('Account created successfully!');
+      } else {
+        // Show any errors returned from the backend
+        setError(data.message || 'Something went wrong, please try again');
+      }
+    } catch (err) {
+      console.error('Error signing up:', err);
+      setError('Server error, please try again later');
+    }
   };
 
   return (
