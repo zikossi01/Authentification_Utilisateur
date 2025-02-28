@@ -9,9 +9,9 @@ const Signup = () => {
     phone: '',
     email: '',
     password: '',
-    confirmPassword: '',  // New field for password confirmation
+    confirmPassword: '',
   });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -29,96 +29,112 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate the email format
-    if (!validateEmail(formData.email)) {
-      setError('Please enter a valid email address');
+    const newErrors = {};
+
+    if (!formData.name) newErrors.name = 'Please write your name';
+    if (!formData.phone) newErrors.phone = 'Please fill in your phone number';
+    if (!formData.email) newErrors.email = 'Please fill in your email';
+    if (formData.email && !validateEmail(formData.email)) newErrors.email = 'Please enter a valid email address';
+    if (!formData.password) newErrors.password = 'Please fill in your password';
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
-
-    // Validate password match
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    // Check if any fields are missing
-    if (!formData.name || !formData.phone || !formData.password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    setError(''); // Reset error message if no issues
 
     try {
       const response = await axios.post('http://localhost:5000/auth/signup', formData);
-      // Handle successful signup
       alert('Account created successfully!');
-      console.log('Signup Response:', response.data);  // The JWT token returned here
       setTimeout(() => navigate("/login"), 1000);
     } catch (err) {
-      console.error('Error signing up:', err);
-      setError('Server error, please try again later');
+      setErrors({ server: 'Server error, please try again later' });
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Create an Account</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input 
-          type="text" 
-          name="name" 
-          value={formData.name} 
-          onChange={handleChange} 
-          placeholder="Full Name" 
-          className="w-full p-2 border rounded" 
-        />
-        <input 
-          type="text" 
-          name="phone" 
-          value={formData.phone} 
-          onChange={handleChange} 
-          placeholder="Phone Number" 
-          className="w-full p-2 border rounded" 
-        />
-        <input 
-          type="email" 
-          name="email" 
-          value={formData.email} 
-          onChange={handleChange} 
-          placeholder="Email Address" 
-          className="w-full p-2 border rounded" 
-        />
-        <input 
-          type="password" 
-          name="password" 
-          value={formData.password} 
-          onChange={handleChange} 
-          placeholder="Password" 
-          className="w-full p-2 border rounded" 
-        />
-        <input 
-          type="password" 
-          name="confirmPassword" 
-          value={formData.confirmPassword} 
-          onChange={handleChange} 
-          placeholder="Confirm Password"  // Password confirmation input
-          className="w-full p-2 border rounded" 
-        />
-        
-        {error && <div className="text-red-500">{error}</div>}
-        
-        <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">
-          Sign Up
-        </button>
+    <div className="min-h-screen bg-gradient-to-r from-indigo-600 to-indigo-900 flex items-center justify-center p-6">
+      <div className="max-w-lg w-full bg-white p-8 rounded-lg shadow-2xl">
+        <h1 className="text-4xl font-bold text-center text-indigo-600 mb-8">Create an Account</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name"
+              className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            {errors.name && <div className="text-red-500 text-sm mt-1">{errors.name}</div>}
+          </div>
 
-        <p className="text-center text-gray-300">
-          Already have an account? 
-          <Link to="/login" className="underline text-blue-400 hover:text-blue-500 transition duration-300">
-            Login
-          </Link>
-        </p>
-      </form>
+          <div>
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Phone Number"
+              className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            {errors.phone && <div className="text-red-500 text-sm mt-1">{errors.phone}</div>}
+          </div>
+
+          <div>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email Address"
+              className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            {errors.email && <div className="text-red-500 text-sm mt-1">{errors.email}</div>}
+          </div>
+
+          <div>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            {errors.password && <div className="text-red-500 text-sm mt-1">{errors.password}</div>}
+          </div>
+
+          <div>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm Password"
+              className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            {errors.confirmPassword && <div className="text-red-500 text-sm mt-1">{errors.confirmPassword}</div>}
+          </div>
+
+          {errors.server && <div className="text-red-500 text-center">{errors.server}</div>}
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-400 hover:to-indigo-600 transition duration-300"
+          >
+            Sign Up
+          </button>
+
+          <p className="text-center text-gray-600">
+            Already have an account? 
+            <Link to="/login" className="text-indigo-500 hover:text-indigo-700 transition duration-300">
+              Login
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

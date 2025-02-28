@@ -1,44 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const ComingSoon = () => {
-  const [timer, setTimer] = useState(0);
-  
-  useEffect(() => {
-    const countdownDate = new Date('2025-03-01').getTime();
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = countdownDate - now;
-      if (distance <= 0) {
-        clearInterval(interval);
-        setTimer(0);
-      } else {
-        setTimer(distance);
-      }
-    }, 1000);
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
 
-    return () => clearInterval(interval);
-  }, []);
-  
-  const days = Math.floor(timer / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((timer % (1000 * 60)) / 1000);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!email) {
+      setError('Please enter your email address to subscribe');
+      return;
+    }
+
+    alert('You have subscribed successfully!');
+    setError('');
+  };
 
   return (
-    <div className="min-h-screen bg-gray-800 flex flex-col items-center justify-center text-white">
-      <h1 className="text-5xl font-bold mb-6">Coming Soon</h1>
-      <div className="text-3xl font-semibold mb-6">
-        {days}d {hours}h {minutes}m {seconds}s
-      </div>
-      <div className="mb-6">
-        <input 
-          type="email" 
-          placeholder="Enter your email for updates" 
-          className="p-2 rounded text-black"
+    <div className="min-h-screen bg-gradient-to-r from-gray-900 to-black flex flex-col items-center justify-center text-white">
+      <h1 className="text-5xl font-extrabold text-indigo-500 mb-8">Coming Soon</h1>
+      <div className="text-4xl font-semibold mb-8">Stay tuned for updates!</div>
+
+      <form onSubmit={handleSubmit} className="mb-8 flex flex-col items-center">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          className="p-3 w-80 text-lg rounded-md shadow-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
-        <button className="ml-4 p-2 bg-blue-500 text-white rounded">Subscribe</button>
-      </div>
-      <div className="animate-pulse text-xl">Stay tuned for something amazing!</div>
+        {error && <div className="text-red-500 mt-2">{error}</div>}
+        <button
+          type="submit"
+          className="mt-4 py-3 px-8 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          Subscribe
+        </button>
+      </form>
+
+      <p className="text-lg">We will notify you once we are live!</p>
     </div>
   );
 };
