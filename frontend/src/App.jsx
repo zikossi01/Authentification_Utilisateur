@@ -10,7 +10,7 @@ const App = () => {
       <Routes> {/* Use Routes instead of Switch in React Router v6 */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<ComingSoon />} />
+        <Route path="/soon" element={<ComingSoon />} />
       </Routes>
     </Router>
   );

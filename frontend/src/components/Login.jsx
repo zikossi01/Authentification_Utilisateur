@@ -1,13 +1,33 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Call your backend API for login and generate JWT
+
+    const loginData = { email, password };
+
+    try {
+      const response = await axios.post('http://localhost:5000/auth/login', loginData);
+
+      // On successful login, save the token to localStorage (or state management)
+      localStorage.setItem('authToken', response.data.token);
+
+      // Optionally, you can redirect to a protected page after login
+      alert('Login successful!');
+      console.log('Login Response:', response.data);  // The JWT token returned here
+      setTimeout(() => navigate("/soon"), 1000);
+    } catch (err) {
+      console.error('Error logging in:', err);
+      setError(err.response ? err.response.data.message : 'Server error');
+    }
   };
 
   return (
@@ -30,12 +50,9 @@ const Login = () => {
         />
         {error && <div className="text-red-500">{error}</div>}
         <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">Login</button>
-        <div className="text-center mt-4">or login with</div>
-        <div className="flex justify-around mt-4">
-          <button className="p-2 bg-red-500 text-white rounded">Google</button>
-          <button className="p-2 bg-gray-900 text-white rounded">GitHub</button>
-          <button className="p-2 bg-blue-600 text-white rounded">Facebook</button>
-        </div>
+        <p className="text-center text-gray-300">
+            Don't have an account? <Link to="/signup" className="underline text-blue-400 hover:text-blue-500 transition duration-300">Register</Link>
+          </p>
       </form>
     </div>
   );

@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
-  const [formData, setFormData] = useState({ name: '', phone: '', email: '', password: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    password: '',
+    confirmPassword: '',  // New field for password confirmation
+  });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -12,7 +21,6 @@ const Signup = () => {
     });
   };
 
-  // Validate email format
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -21,13 +29,19 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if email is valid
+    // Validate the email format
     if (!validateEmail(formData.email)) {
       setError('Please enter a valid email address');
       return;
     }
 
-    // Check for missing fields
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    // Check if any fields are missing
     if (!formData.name || !formData.phone || !formData.password) {
       setError('Please fill in all fields');
       return;
@@ -35,23 +49,12 @@ const Signup = () => {
 
     setError(''); // Reset error message if no issues
 
-    // Call your backend API for signup here (this is just an example)
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Successfully signed up, you can redirect the user or show success message
-        alert('Account created successfully!');
-      } else {
-        // Show any errors returned from the backend
-        setError(data.message || 'Something went wrong, please try again');
-      }
+      const response = await axios.post('http://localhost:5000/auth/signup', formData);
+      // Handle successful signup
+      alert('Account created successfully!');
+      console.log('Signup Response:', response.data);  // The JWT token returned here
+      setTimeout(() => navigate("/login"), 1000);
     } catch (err) {
       console.error('Error signing up:', err);
       setError('Server error, please try again later');
@@ -94,8 +97,27 @@ const Signup = () => {
           placeholder="Password" 
           className="w-full p-2 border rounded" 
         />
+        <input 
+          type="password" 
+          name="confirmPassword" 
+          value={formData.confirmPassword} 
+          onChange={handleChange} 
+          placeholder="Confirm Password"  // Password confirmation input
+          className="w-full p-2 border rounded" 
+        />
+        
         {error && <div className="text-red-500">{error}</div>}
-        <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">Sign Up</button>
+        
+        <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">
+          Sign Up
+        </button>
+
+        <p className="text-center text-gray-300">
+          Already have an account? 
+          <Link to="/login" className="underline text-blue-400 hover:text-blue-500 transition duration-300">
+            Login
+          </Link>
+        </p>
       </form>
     </div>
   );
